@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bored Billionaires — swipe right, change a life</title>
+<meta name="description" content="People upload real bills. Billionaires (and anyone generous) swipe through and pay them. Swipe right, change a life.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest:#0b3d2e;
+  --forest-2:#123f30;
+  --paper:#faf7f0;
+  --paper-2:#f1ebdc;
+  --money:#17a364;
+  --money-dark:#0e7a4c;
+  --gold:#d4af37;
+  --coral:#e2574c;
+  --ink:#171a17;
+  --ink-soft:#4a534c;
+  --line:#dcd4bf;
+  --radius:18px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Inter',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+.mono{font-family:'IBM Plex Mono',monospace;}
+a{color:inherit;}
+img{max-width:100%;}
+
+/* ============ NAV ============ */
+nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px clamp(18px,5vw,48px);
+  position:sticky;top:0;z-index:50;
+  background:rgba(250,247,240,0.9);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.logo{
+  font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem;
+  display:flex;align-items:center;gap:8px;
+}
+.logo .dot{color:var(--gold);}
+.nav-links{display:flex;gap:24px;font-size:0.92rem;}
+.nav-links a{text-decoration:none;color:var(--ink-soft);}
+@media(max-width:640px){ .nav-links{display:none;} }
+
+/* ============ HERO ============ */
+.hero{
+  max-width:1200px;margin:0 auto;
+  padding:clamp(28px,6vw,60px) clamp(18px,5vw,48px) 40px;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:36px;
+  text-align:center;
+}
+.hero-copy h1{
+  font-family:'Fraunces',serif;font-weight:500;
+  font-size:clamp(2rem,6vw,3.1rem);
+  line-height:1.08;margin:0 0 16px;
+  letter-spacing:-0.01em;
+}
+.hero-copy p{
+  color:var(--ink-soft);font-size:clamp(1rem,2.2vw,1.15rem);
+  line-height:1.55;max-width:480px;margin:0 auto 26px;
+}
+.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn{
+  font-family:'Inter',sans-serif;font-weight:600;font-size:0.95rem;
+  padding:14px 26px;border-radius:999px;border:none;cursor:pointer;
+  text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+  transition:transform 0.15s ease;
+}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--money);color:white;}
+.btn-ghost{background:transparent;border:1.5px solid var(--forest);color:var(--forest);}
+
+/* ============ SWIPE DECK ============ */
+.deck-wrap{
+  position:relative;
+  width:min(100%, 340px);
+  height:440px;
+  margin:0 auto;
+  touch-action:none;
+}
+.card{
+  position:absolute;inset:0;
+  background:var(--paper);
+  border-radius:4px;
+  box-shadow:0 18px 40px rgba(11,61,46,0.18), 0 2px 8px rgba(11,61,46,0.1);
+  padding:0;
+  display:flex;flex-direction:column;
+  cursor:grab;
+  user-select:none;
+  overflow:hidden;
+  border:1px solid var(--line);
+}
+.card:active{cursor:grabbing;}
+/* perforated receipt edge */
+.card::before{
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:10px;
+  background-image:radial-gradient(circle at 10px 0, transparent 5px, var(--paper) 5.5px);
+  background-size:20px 10px;
+  background-repeat:repeat-x;
+  z-index:2;
+}
+.card-head{
+  background:var(--forest);color:var(--paper);
+  padding:18px 20px 14px;
+  position:relative;
+}
+.card-head .amount{
+  font-family:'IBM Plex Mono',monospace;font-weight:600;
+  font-size:2.1rem;letter-spacing:-0.01em;
+}
+.card-head .label{
+  font-size:0.78rem;color:rgba(250,247,240,0.65);margin-top:2px;
+}
+.urgency{
+  position:absolute;top:16px;right:18px;
+  font-family:'IBM Plex Mono',monospace;font-size:0.68rem;
+  background:var(--coral);color:white;
+  padding:4px 9px;border-radius:999px;
+}
+.card-body{padding:16px 20px;flex:1;display:flex;flex-direction:column;gap:10px;}
+.card-body .who{font-weight:600;font-size:1.02rem;}
+.card-body .where{color:var(--ink-soft);font-size:0.85rem;}
+.card-body .story{
+  font-size:0.9rem;line-height:1.5;color:var(--ink-soft);
+  flex:1;
+}
+.progress-row{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+.progress-track{height:6px;background:var(--paper-2);border-radius:999px;overflow:hidden;margin:4px 0 2px;}
+.progress-fill{height:100%;background:var(--money);border-radius:999px;}
+.card-foot{
+  padding:12px 20px 18px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:1px dashed var(--line);
+}
+.foot-tag{font-size:0.72rem;color:var(--ink-soft);}
+
+.stamp{
+  position:absolute;top:40px;
+  font-family:'Fraunces',serif;font-weight:600;font-size:1.6rem;
+  padding:8px 18px;border-radius:8px;
+  border:3px solid; transform:rotate(-12deg);
+  opacity:0;pointer-events:none;z-index:5;
+  letter-spacing:0.02em;
+}
+.stamp-paid{right:20px;color:var(--money);border-color:var(--money);transform:rotate(-12deg);}
+.stamp-skip{left:20px;color:var(--coral);border-color:var(--coral);transform:rotate(12deg);}
+
+.deck-controls{
+  display:flex;justify-content:center;gap:22px;margin-top:22px;
+}
+.ctrl-btn{
+  width:58px;height:58px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  border:none;cursor:pointer;
+  box-shadow:0 8px 20px rgba(11,61,46,0.15);
+}
+.ctrl-skip{background:white;color:var(--coral);border:1.5px solid var(--coral);}
+.ctrl-pay{background:var(--money);color:white;}
+.deck-hint{
+  text-align:center;color:var(--ink-soft);font-size:0.78rem;margin-top:14px;
+}
+
+.deck-empty{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:10px;text-align:center;padding:30px;
+  background:var(--paper-2);border-radius:4px;border:1px dashed var(--line);
+}
+.deck-empty h3{font-family:'Fraunces',serif;font-weight:500;margin:0;font-size:1.3rem;}
+.deck-empty p{color:var(--ink-soft);font-size:0.88rem;margin:0;}
+
+/* ============ TICKER ============ */
+.ticker-wrap{
+  background:var(--forest);color:var(--paper);
+  padding:16px 0;overflow:hidden;margin:50px 0;
+}
+.ticker-track{
+  display:flex;gap:48px;white-space:nowrap;
+  animation:scroll 22s linear infinite;
+  font-family:'IBM Plex Mono',monospace;font-size:0.85rem;
+}
+@keyframes scroll{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+.ticker-track span{color:var(--gold);}
+
+/* ============ STATS ============ */
+.stats{
+  max-width:900px;margin:0 auto;padding:0 clamp(18px,5vw,48px) 50px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center;
+}
+.stat-num{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:clamp(1.5rem,4vw,2.2rem);color:var(--money-dark);}
+.stat-label{font-size:0.78rem;color:var(--ink-soft);margin-top:4px;}
+
+/* ============ HOW IT WORKS ============ */
+.section{max-width:900px;margin:0 auto;padding:50px clamp(18px,5vw,48px);}
+.section h2{
+  font-family:'Fraunces',serif;font-weight:500;font-size:clamp(1.6rem,4vw,2.1rem);
+  text-align:center;margin:0 0 36px;
+}
+.steps{display:grid;gap:22px;grid-template-columns:repeat(3,1fr);}
+@media(max-width:720px){ .steps{grid-template-columns:1fr;} }
+.step{
+  background:white;border:1px solid var(--line);border-radius:var(--radius);
+  padding:24px 20px;
+}
+.step-num{
+  font-family:'IBM Plex Mono',monospace;color:var(--gold);font-weight:600;
+  font-size:0.85rem;margin-bottom:10px;
+}
+.step h3{font-family:'Fraunces',serif;font-weight:500;margin:0 0 8px;font-size:1.1rem;}
+.step p{color:var(--ink-soft);font-size:0.88rem;line-height:1.5;margin:0;}
+
+/* ============ SUBMIT FORM ============ */
+.submit-card{
+  background:var(--forest);color:var(--paper);
+  border-radius:24px;padding:clamp(28px,5vw,44px);
+  max-width:900px;margin:0 auto 60px;
+}
+.submit-card h2{color:var(--paper);text-align:left;margin-bottom:8px;}
+.submit-card > p{color:rgba(250,247,240,0.7);font-size:0.92rem;margin:0 0 28px;max-width:480px;}
+.form-grid{display:grid;gap:14px;grid-template-columns:1fr 1fr;}
+@media(max-width:600px){ .form-grid{grid-template-columns:1fr;} }
+.field{display:flex;flex-direction:column;gap:6px;}
+.field.full{grid-column:1/-1;}
+.field label{font-size:0.78rem;color:rgba(250,247,240,0.65);}
+.field input, .field select, .field textarea{
+  background:rgba(250,247,240,0.08);
+  border:1px solid rgba(250,247,240,0.25);
+  border-radius:10px;padding:11px 13px;color:var(--paper);
+  font-family:'Inter',sans-serif;font-size:0.92rem;
+}
+.field textarea{resize:vertical;min-height:70px;}
+.field input::placeholder, .field textarea::placeholder{color:rgba(250,247,240,0.4);}
+.submit-row{margin-top:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.submit-note{font-size:0.76rem;color:rgba(250,247,240,0.55);}
+.submit-msg{font-size:0.85rem;color:var(--gold);display:none;}
+.submit-msg.show{display:block;}
+
+/* ============ DISCLAIMER ============ */
+.disclaimer{
+  max-width:700px;margin:0 auto 60px;padding:0 clamp(18px,5vw,48px);
+  text-align:center;
+}
+.disclaimer p{color:var(--ink-soft);font-size:0.85rem;line-height:1.6;}
+
+footer{
+  border-top:1px solid var(--line);
+  padding:28px clamp(18px,5vw,48px);
+  text-align:center;color:var(--ink-soft);font-size:0.8rem;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .ticker-track{animation:none;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Bored Billionaires <span class="dot">●</span></div>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#submit">Submit a bill</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-copy">
+    <h1>Someone's rent is due.<br>You have more money<br>than you know what to do with.</h1>
+    <p>Real bills from real people. Swipe right to pay one instantly. Swipe left to see the next.</p>
+  </div>
+
+  <div>
+    <div class="deck-wrap" id="deckWrap"></div>
+    <div class="deck-controls">
+      <button class="ctrl-btn ctrl-skip" id="skipBtn" aria-label="Skip this bill">✕</button>
+      <button class="ctrl-btn ctrl-pay" id="payBtn" aria-label="Pay this bill">♥</button>
+    </div>
+    <p class="deck-hint">Drag the card, or tap a button</p>
+  </div>
+</div>
+
+<div class="ticker-wrap">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<div class="stats">
+  <div><div class="stat-num mono" id="statPaid">0</div><div class="stat-label">bills paid today</div></div>
+  <div><div class="stat-num mono" id="statAmount">$0</div><div class="stat-label">total covered</div></div>
+  <div><div class="stat-num mono">1,482</div><div class="stat-label">billionaires swiping</div></div>
+</div>
+
+<div class="section" id="how">
+  <h2>How it works</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h3>Someone uploads a real bill</h3>
+      <p>Rent, a medical bill, tuition, groceries — whatever's actually due, with proof.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h3>You swipe through the deck</h3>
+      <p>Each card shows the amount, the story, and how urgent it is. Swipe right if you want to help.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h3>The bill gets paid</h3>
+      <p>Directly to the biller, not the person — so the money goes exactly where it's needed.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="submit" style="padding-top:0;">
+  <div class="submit-card">
+    <h2>Got a bill?</h2>
+    <p>Submit it below. Keep it honest — every bill needs documentation before it goes live in the deck.</p>
+    <form id="billForm">
+      <div class="form-grid">
+        <div class="field">
+          <label for="fName">Your first name</label>
+          <input type="text" id="fName" placeholder="Maria" required>
+        </div>
+        <div class="field">
+          <label for="fCity">City, state</label>
+          <input type="text" id="fCity" placeholder="Austin, TX" required>
+        </div>
+        <div class="field">
+          <label for="fType">Bill type</label>
+          <select id="fType" required>
+            <option value="">Select one</option>
+            <option>Rent</option>
+            <option>Medical</option>
+            <option>Utility</option>
+            <option>Tuition</option>
+            <option>Car repair</option>
+            <option>Groceries</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="fAmount">Amount due</label>
+          <input type="number" id="fAmount" placeholder="420" min="1" required>
+        </div>
+        <div class="field full">
+          <label for="fStory">What happened? (one or two sentences)</label>
+          <textarea id="fStory" placeholder="Hours got cut at work and the electric bill is due before payday." required></textarea>
+        </div>
+      </div>
+      <div class="submit-row">
+        <button type="submit" class="btn btn-primary">Submit bill</button>
+        <span class="submit-note">No account needed for this demo</span>
+      </div>
+      <p class="submit-msg" id="submitMsg">Added to the deck — scroll up and try swiping on it.</p>
+    </form>
+  </div>
+</div>
+
+<div class="disclaimer">
+  <p>This is a working prototype. Swiping here doesn't move real money yet — a live version would need a licensed payments backend (like Stripe), identity checks on both sides, and a process for verifying each bill before it's shown. Consider this a demo of the idea, not a place to submit a bill you actually need paid.</p>
+</div>
+
+<footer>
+  Bored Billionaires — swipe right, change a life.
+</footer>
+
+<script>
+/* ======================================================================
+   MOCK BILL DATA
+   ====================================================================== */
+const STARTER_BILLS = [
+  {name:"Maria", where:"Austin, TX", type:"Electric bill", amount:184, goal:184, raised:0, story:"Hours got cut at work this month. The power gets shut off Thursday if this isn't paid.", urgent:"3 days left"},
+  {name:"Dante", where:"Flint, MI", type:"Car repair", amount:612, goal:612, raised:120, story:"Transmission went out. Without the car, he can't get to his two jobs.", urgent:"5 days left"},
+  {name:"Priya", where:"Queens, NY", type:"Medical bill", amount:940, goal:940, raised:340, story:"ER visit for her son. Insurance covered half. The rest is due now.", urgent:"1 week left"},
+  {name:"Sam", where:"Tulsa, OK", type:"Rent", amount:1250, goal:1250, raised:600, story:"Laid off in March, new job starts Monday — just short for this month's rent.", urgent:"2 days left"},
+  {name:"Okonkwo", where:"Atlanta, GA", type:"Tuition", amount:380, goal:380, raised:0, story:"One class away from finishing the certificate. Short on the last payment.", urgent:"Due Friday"},
+  {name:"Lena", where:"Portland, OR", type:"Groceries", amount:95, goal:95, raised:10, story:"Single mom, three kids, paycheck doesn't land until next week.", urgent:"Today"}
+];
+
+const STORAGE_KEY = 'bb_bills_v1';
+const STATS_KEY = 'bb_stats_v1';
+
+function loadBills(){
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (saved && Array.isArray(saved) && saved.length) return saved;
+  } catch(e){}
+  return [...STARTER_BILLS];
+}
+function saveBills(bills){ localStorage.setItem(STORAGE_KEY, JSON.stringify(bills)); }
+
+function loadStats(){
+  try {
+    const s = JSON.parse(localStorage.getItem(STATS_KEY));
+    if (s) return s;
+  } catch(e){}
+  return {paid:0, amount:0};
+}
+function saveStats(s){ localStorage.setItem(STATS_KEY, JSON.stringify(s)); }
+
+let bills = loadBills();
+let stats = loadStats();
+
+/* ======================================================================
+   RENDER DECK
+   ====================================================================== */
+const deckWrap = document.getElementById('deckWrap');
+const skipBtn = document.getElementById('skipBtn');
+const payBtn = document.getElementById('payBtn');
+
+function money(n){ return '$' + Number(n).toLocaleString(); }
+
+function renderDeck(){
+  deckWrap.innerHTML = '';
+  if (bills.length === 0){
+    deckWrap.innerHTML = `<div class="deck-empty">
+      <h3>That's every bill right now</h3>
+      <p>Check back soon, or submit one below.</p>
+    </div>`;
+    return;
+  }
+  // render up to 3 cards, topmost is last in DOM for stacking, but we want last item = top of array
+  const visible = bills.slice(0, 3);
+  visible.forEach((bill, idx) => {
+    const depth = visible.length - 1 - idx; // 0 = top card
+    const card = buildCard(bill, depth);
+    deckWrap.appendChild(card);
+  });
+}
+
+function buildCard(bill, depth){
+  const card = document.createElement('div');
+  card.className = 'card';
+  const scale = 1 - depth*0.04;
+  const translateY = depth*10;
+  card.style.transform = `translateY(${translateY}px) scale(${scale})`;
+  card.style.zIndex = 10 - depth;
+  card.style.opacity = depth > 2 ? 0 : 1;
+
+  const pct = Math.min(100, Math.round((bill.raised/bill.goal)*100));
+
+  card.innerHTML = `
+    <div class="card-head">
+      <span class="urgency">${bill.urgent}</span>
+      <div class="amount mono">${money(bill.amount)}</div>
+      <div class="label">${bill.type}</div>
+    </div>
+    <div class="card-body">
+      <div class="who">${bill.name} · ${bill.where}</div>
+      <div class="story">${bill.story}</div>
+      <div>
+        <div class="progress-row"><span>${money(bill.raised)} raised</span><span>${pct}%</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <span class="foot-tag">Goes directly to the biller</span>
+    </div>
+    <div class="stamp stamp-paid">PAID</div>
+    <div class="stamp stamp-skip">SKIP</div>
+  `;
+
+  if (depth === 0){
+    attachDrag(card, bill);
+  }
+  return card;
+}
+
+/* ======================================================================
+   DRAG / SWIPE MECHANICS
+   ====================================================================== */
+function attachDrag(card, bill){
+  let startX = 0, startY = 0, dx = 0, dragging = false;
+  const stampPaid = card.querySelector('.stamp-paid');
+  const stampSkip = card.querySelector('.stamp-skip');
+
+  function pointerDown(e){
+    dragging = true;
+    const p = e.touches ? e.touches[0] : e;
+    startX = p.clientX; startY = p.clientY;
+    card.style.transition = 'none';
+  }
+  function pointerMove(e){
+    if (!dragging) return;
+    const p = e.touches ? e.touches[0] : e;
+    dx = p.clientX - startX;
+    const dy = (p.clientY - startY) * 0.4;
+    const rot = dx * 0.06;
+    card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+    const op = Math.min(Math.abs(dx)/80, 1);
+    if (dx > 0){ stampPaid.style.opacity = op; stampSkip.style.opacity = 0; }
+    else { stampSkip.style.opacity = op; stampPaid.style.opacity = 0; }
+  }
+  function pointerUp(){
+    if (!dragging) return;
+    dragging = false;
+    card.style.transition = 'transform 0.35s cubic-bezier(.2,.8,.3,1)';
+    if (dx > 90){ resolveCard('pay'); }
+    else if (dx < -90){ resolveCard('skip'); }
+    else {
+      card.style.transform = 'translate(0,0) rotate(0)';
+      stampPaid.style.opacity = 0; stampSkip.style.opacity = 0;
+    }
+    dx = 0;
+  }
+
+  card.addEventListener('mousedown', pointerDown);
+  window.addEventListener('mousemove', pointerMove);
+  window.addEventListener('mouseup', pointerUp);
+  card.addEventListener('touchstart', pointerDown, {passive:true});
+  card.addEventListener('touchmove', pointerMove, {passive:true});
+  card.addEventListener('touchend', pointerUp);
+
+  card._resolve = resolveCard;
+
+  function resolveCard(action){
+    const flyX = action === 'pay' ? 600 : -600;
+    card.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+    card.style.transform = `translate(${flyX}px, -40px) rotate(${action==='pay'?20:-20}deg)`;
+    card.style.opacity = '0';
+
+    if (action === 'pay'){
+      stats.paid += 1;
+      stats.amount += bill.amount;
+      saveStats(stats);
+      updateStatsDisplay();
+    }
+
+    setTimeout(()=>{
+      bills.shift();
+      saveBills(bills);
+      renderDeck();
+    }, 380);
+  }
+}
+
+skipBtn.addEventListener('click', ()=>{
+  const top = deckWrap.querySelector('.card');
+  if (top && top._resolve) top._resolve('skip');
+});
+payBtn.addEventListener('click', ()=>{
+  const top = deckWrap.querySelector('.card');
+  if (top && top._resolve) top._resolve('pay');
+});
+
+/* ======================================================================
+   STATS + TICKER
+   ====================================================================== */
+function updateStatsDisplay(){
+  document.getElementById('statPaid').textContent = stats.paid;
+  document.getElementById('statAmount').textContent = money(stats.amount);
+}
+
+function buildTicker(){
+  const names = ["Maria's electric bill — paid", "Dante's car repair — paid", "Priya's ER bill — paid", "Sam's rent — paid", "Okonkwo's tuition — paid", "Lena's groceries — paid"];
+  const track = document.getElementById('tickerTrack');
+  const content = names.map(n => `<span>●</span> ${n}`).join(' &nbsp; ');
+  track.innerHTML = content + ' &nbsp; ' + content; // duplicate for seamless loop
+}
+
+/* ======================================================================
+   SUBMIT FORM
+   ====================================================================== */
+document.getElementById('billForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const name = document.getElementById('fName').value.trim();
+  const city = document.getElementById('fCity').value.trim();
+  const type = document.getElementById('fType').value;
+  const amount = parseFloat(document.getElementById('fAmount').value);
+  const story = document.getElementById('fStory').value.trim();
+
+  if (!name || !city || !type || !amount || !story) return;
+
+  bills.push({
+    name, where: city, type, amount, goal: amount, raised: 0,
+    story, urgent: "Just added"
+  });
+  saveBills(bills);
+  renderDeck();
+
+  document.getElementById('submitMsg').classList.add('show');
+  e.target.reset();
+  setTimeout(()=> document.getElementById('submitMsg').classList.remove('show'), 4000);
+});
+
+/* ======================================================================
+   INIT
+   ====================================================================== */
+renderDeck();
+updateStatsDisplay();
+buildTicker();
+</script>
+
+</body>
+</html>
